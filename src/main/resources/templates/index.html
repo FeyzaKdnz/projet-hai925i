@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header}">
+    <title>Choix de l'Université</title>
+</head>
+<body class="bg-light">
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 text-primary">Bienvenue</h1>
+        <p class="lead">Sélectionnez une université.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-5" th:each="uni : ${universites}">
+            <div class="card shadow mb-4 hover-shadow transition">
+                <div class="card-body text-center">
+                    <h3 class="card-title text-uppercase" th:text="${uni.nom}">Nom Université</h3>
+                    <h6 class="card-subtitle mb-2 text-muted" th:text="${uni.acronyme}">ACRONYME</h6>
+                    <hr>
+                    <p class="card-text">Présidence : <span th:text="${uni.presidence}"></span></p>
+
+                    <a th:href="@{/login(uni=${uni.acronyme})}" class="btn btn-primary w-100">
+                        <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

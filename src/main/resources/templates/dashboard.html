@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header}">
+    <title>Tableau de bord</title>
+</head>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+
+<style>
+    #map { height: 500px; width: 100%; border-radius: 0 0 8px 8px; z-index: 1; }
+    /* Ajustement pour centrer le camembert */
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+</style>
+
+<body class="bg-light">
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<div class="container-fluid mt-4 px-4">
+    <header class="mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="text-primary display-6">Tableau de bord : <span th:text="${nomUniversite}"></span></h1>
+            <p class="text-muted">Statistiques et Géolocalisation des infrastructures</p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a th:href="@{/salles(universite=${nomUniversite})}" class="btn btn-primary">
+                <i class="bi bi-gear-fill"></i> Gérer les Salles
+            </a>
+        </div>
+    </header>
+
+    <div class="card shadow-sm mb-4 border-primary border-top border-3">
+        <div class="card-body bg-white d-flex align-items-center">
+            <label for="campusSelect" class="form-label fw-bold me-3 mb-0 fs-5"><i class="bi bi-buildings"></i> Sélectionner un Campus :</label>
+            <select id="campusSelect" class="form-select form-select-lg w-50">
+                <option value="" selected disabled>-- Choisir dans la liste --</option>
+                <option th:each="c : ${campuses}"
+                        th:value="${c.nom}"
+                        th:text="${c.nom} + ' (' + ${c.ville} + ')'">
+                </option>
+            </select>
+        </div>
+    </div>
+
+    <div id="statsSection" class="row mb-4 d-none">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-list-ul"></i> Détails des Salles</h5>
+                </div>
+                <div class="card-body">
+                    <ul id="statsList" class="list-group list-group-flush">
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart-fill"></i> Répartition par Type</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="myTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-5">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0"><i class="bi bi-geo-alt-fill text-danger"></i> Cartographie & Itinéraires</h5>
+            <small class="text-muted">Cliquez sur deux campus pour calculer la distance et le trajet.</small>
+        </div>
+        <div class="card-body p-0">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <div class="card text-white bg-primary shadow">
+        <div class="card-body">
+            <h5 class="card-title">Campus enregistrés</h5>
+            <p class="card-text display-4" th:text="${campuses.size()}">0</p>
+
+            <div class="d-flex gap-2 mt-3">
+                <a th:href="@{/users}"
+                   class="btn btn-warning btn-sm text-dark"
+                   th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''ENSEIGNANT'')')}">
+                    <i class="bi bi-people-fill"></i> Voir les personnes
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script th:inline="javascript">
+
+    // =========================================================
+    // PARTIE 1 : GESTION DU GRAPHIQUE (CAMEMBERT) ET AJAX
+    // =========================================================
+
+    let myChart = null;
+    const campusSelect = document.getElementById('campusSelect');
+    const statsSection = document.getElementById('statsSection');
+    const statsListJs = document.getElementById('statsList');
+    const ctx = document.getElementById('myTypeChart').getContext('2d');
+
+    campusSelect.addEventListener('change', function() {
+        const selectedCampus = this.value;
+
+        if (selectedCampus) {
+            statsSection.classList.remove('d-none');
+
+            // Appel AJAX
+            fetch(`/api/salles/stats/campus/${selectedCampus}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Erreur réseau");
+                    return response.json();
+                })
+                .then(data => {
+                    updateView(data, selectedCampus);
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    statsListJs.innerHTML = '<li class="list-group-item text-danger">Impossible de charger les données.</li>';
+                });
+        }
+    });
+
+    function updateView(data, nomCampus) {
+        // A. Mise à jour de la liste
+        statsListJs.innerHTML = '';
+        const labels = [];
+        const values = [];
+
+        if (Object.keys(data).length === 0) {
+            statsListJs.innerHTML = '<li class="list-group-item">Aucune salle répertoriée.</li>';
+        }
+
+        for (const [type, count] of Object.entries(data)) {
+            let li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.innerHTML = `<span>Type <b>${type}</b></span> <span class="badge bg-primary rounded-pill">${count}</span>`;
+            statsListJs.appendChild(li);
+
+            labels.push(type);
+            values.push(count);
+        }
+
+        // B. Mise à jour du Camembert (Pie Chart)
+        if (myChart) {
+            myChart.destroy();
+        }
+
+        myChart = new Chart(ctx, {
+            type: 'pie', // CHANGEMENT ICI : 'pie' ou 'doughnut'
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Nombre de salles',
+                    data: values,
+                    backgroundColor: [
+                        '#FF6384', // Rouge
+                        '#36A2EB', // Bleu
+                        '#FFCE56', // Jaune
+                        '#4BC0C0', // Vert d'eau
+                        '#9966FF', // Violet
+                        '#FF9F40', // Orange
+                        '#C9CBCF', // Gris
+                        '#2ecc71', // Vert émeraude
+                        '#e74c3c', // Rouge vif
+                        '#34495e'  // Bleu nuit
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true, // On affiche la légende pour le camembert
+                        position: 'right' // Positionnée à droite
+                    },
+                    title: {
+                        display: true,
+                        text: 'Répartition des types de salles à ' + nomCampus
+                    }
+                }
+                // Note : On a supprimé 'scales' car un camembert n'a pas d'axes X/Y
+            }
+        });
+    }
+
+
+    // =========================================================
+    // PARTIE 2 : LOGIQUE DE LA CARTE
+    // =========================================================
+
+    var map = L.map('map').setView([43.6107, 3.8767], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    var routingControl = null;
+    var pointDepart = null;
+    var pointArrivee = null;
+    var markerDepart = null;
+    var markerArrivee = null;
+
+    function createIcon(color) {
+        return new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-' + color + '.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+    }
+
+    function definirDepart(lat, lng, nom) {
+        pointDepart = L.latLng(lat, lng);
+        if (markerDepart) map.removeLayer(markerDepart);
+        markerDepart = L.marker([lat, lng], {icon: createIcon('green')}).addTo(map).bindPopup("Départ : " + nom).openPopup();
+        verifierEtLancerCalcul();
+    }
+
+    function definirArrivee(lat, lng, nom) {
+        pointArrivee = L.latLng(lat, lng);
+        if (markerArrivee) map.removeLayer(markerArrivee);
+        markerArrivee = L.marker([lat, lng], {icon: createIcon('red')}).addTo(map).bindPopup("Arrivée : " + nom).openPopup();
+        verifierEtLancerCalcul();
+    }
+
+    function verifierEtLancerCalcul() {
+        if (pointDepart && pointArrivee) {
+            if (routingControl !== null) {
+                map.removeControl(routingControl);
+            }
+            routingControl = L.Routing.control({
+                waypoints: [pointDepart, pointArrivee],
+                language: 'fr',
+                routeWhileDragging: false,
+                showAlternatives: false,
+                collapsible: true
+            }).addTo(map);
+        }
+    }
+
+    /*<![CDATA[*/
+    var campuses = /*[[${campuses}]]*/ [];
+    /*]]>*/
+
+    var bounds = [];
+    if (campuses && campuses.length > 0) {
+        campuses.forEach(function(campus) {
+            if (campus.latitude && campus.longitude) {
+                var marker = L.marker([campus.latitude, campus.longitude]).addTo(map);
+                var popupContent = `
+                    <div style="text-align:center">
+                        <b>${campus.nom}</b><br>
+                        ${campus.ville}<br>
+                        <hr style="margin:5px 0">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-sm btn-success" onclick="definirDepart(${campus.latitude}, ${campus.longitude}, '${campus.nom}')">🚩 Départ</button>
+                            <button class="btn btn-sm btn-danger" onclick="definirArrivee(${campus.latitude}, ${campus.longitude}, '${campus.nom}')">🏁 Arrivée</button>
+                        </div>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+                bounds.push([campus.latitude, campus.longitude]);
+            }
+        });
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, {padding: [50, 50]});
+        }
+    }
+</script>
+
+</body>
+</html>

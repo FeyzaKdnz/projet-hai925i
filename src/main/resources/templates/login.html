@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header}">
+    <title>Connexion</title>
+</head>
+<body class="bg-light">
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>Connexion</h4>
+                    <small th:text="${nomUniversite}">Université</small>
+                </div>
+                <div class="card-body">
+                    <!-- Affichage des erreurs -->
+                    <div th:if="${param.error}" class="alert alert-danger">
+                        Identifiants incorrects ou accès refusé.
+                    </div>
+                    <div th:if="${param.logout}" class="alert alert-success">
+                        Vous avez été déconnecté.
+                    </div>
+
+                    <form th:action="@{/login}" method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nom d'utilisateur</label>
+                            <input type="text" id="username" name="username" class="form-control" required autofocus>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mot de passe</label>
+                            <input type="password" id="password" name="password" class="form-control" required>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Se connecter</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="/" class="text-decoration-none text-muted">Changer d'université</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

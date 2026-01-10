@@ -1,0 +1,89 @@
+package com.hai925i.campus.model;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "salle")
+public class Salle {
+
+    @Id
+    @Column(name = "numS", length = 50)
+    private String numSalle;
+
+    private int capacite;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 12)
+    private TypeSalle typeS;
+
+    @Column(name = "acces", length = 3)
+    private String accessibilite;
+
+    @Column(length = 3)
+    private String etage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "batiment") // FK vers Batiment
+    private Batiment batiment;
+
+    public Salle() {
+    }
+
+    public Salle(String numSalle, int capacite, TypeSalle typeS, String accessibilite, String etage, Batiment batiment) {
+        this.numSalle = numSalle;
+        this.capacite = capacite;
+        this.typeS = typeS;
+        this.accessibilite = accessibilite;
+        this.etage = etage;
+        this.batiment = batiment;
+    }
+
+    // Getters et Setters
+    public String getNumSalle() {
+        return numSalle;
+    }
+
+    public void setNumSalle(String numSalle) {
+        this.numSalle = numSalle;
+    }
+
+    public int getCapacite() {
+        return capacite;
+    }
+
+    public void setCapacite(int capacite) {
+        this.capacite = capacite;
+    }
+
+    public TypeSalle getTypeS() {
+        return typeS;
+    }
+
+    public void setTypeS(TypeSalle typeS) {
+        this.typeS = typeS;
+    }
+
+    public String getAccessibilite() {
+        return accessibilite;
+    }
+
+    public void setAccessibilite(String accessibilite) {
+        this.accessibilite = accessibilite;
+    }
+
+    public String getEtage() {
+        return etage;
+    }
+
+    public void setEtage(String etage) {
+        this.etage = etage;
+    }
+
+    public Batiment getBatiment() {
+        return batiment;
+    }
+
+    public void setBatiment(Batiment batiment) {
+        this.batiment = batiment;
+    }
+}

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: header}"></head>
+<body class="bg-light">
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<!-- Utilisation de container-xxl pour une largeur plus grande mais pas totale -->
+<div class="container-xxl mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Inventaire des Salles</h4>
+            <div sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/salles/add}" class="btn btn-primary me-2">
+                    <i class="bi bi-plus-circle"></i> Ajouter une salle
+                </a>
+            </div>
+        </div>
+
+        <div class="card mb-3 p-3 bg-light border-0 border-bottom">
+            <form th:action="@{/salles}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Recherche</label>
+                    <input type="text" name="keyword" class="form-control" placeholder="Numéro..." th:value="${keyword}">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Campus</label>
+                    <select name="campus" class="form-select">
+                        <option value="">-- Tous --</option>
+                        <option th:each="c : ${campuses}"
+                                th:value="${c.nomC}"
+                                th:text="${c.nomC}"
+                                th:selected="${c.nomC == selectedCampus}"></option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Bâtiment</label>
+                    <select name="batiment" class="form-select">
+                        <option value="">-- Tous --</option>
+                        <option th:each="b : ${batiments}"
+                                th:value="${b.codeB}"
+                                th:text="${b.codeB}"
+                                th:selected="${b.codeB == selectedBatiment}"></option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Capacité Min.</label>
+                    <input type="number" name="capMin" class="form-control" placeholder="Min..." th:value="${capMin}">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Accès PMR</label>
+                    <select name="acces" class="form-select">
+                        <option value="">-- Tous --</option>
+                        <option value="oui" th:selected="${selectedAcces == 'oui'}">Oui</option>
+                        <option value="non" th:selected="${selectedAcces == 'non'}">Non</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="bi bi-search"></i>
+                    </button>
+                    <a th:href="@{/salles}" class="btn btn-outline-secondary" title="Réinitialiser">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th>N° Salle</th>
+                    <th>Campus</th>
+                    <th>Bâtiment</th>
+                    <th>Type</th>
+                    <th>Capacité</th>
+                    <th>Étage</th>
+                    <th>Accès PMR</th>
+                    <th sec:authorize="hasRole('ADMIN')">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="salle : ${salles}">
+                    <td class="fw-bold" th:text="${salle.numSalle}"></td>
+
+                    <td th:text="${salle.batiment?.campus?.nomC}"></td>
+                    <td th:text="${salle.batiment?.codeB}"></td>
+
+                    <td><span class="badge bg-info text-dark" th:text="${salle.typeS}"></span></td>
+
+                    <td th:text="${salle.capacite}"></td>
+                    <td th:text="${salle.etage}"></td>
+                    <td>
+                        <span th:if="${salle.accessibilite == 'oui'}" class="text-success fw-bold"><i class="bi bi-check-lg"></i> Oui</span>
+                        <span th:unless="${salle.accessibilite == 'oui'}" class="text-muted"><i class="bi bi-x-lg"></i> Non</span>
+                    </td>
+
+                    <td sec:authorize="hasRole('ADMIN')">
+                        <div class="btn-group">
+                            <a th:href="@{/salles/edit/{id}(id=${salle.numSalle})}"
+                               class="btn btn-sm btn-outline-warning">
+                                <i class="bi bi-pencil"></i> Modifier
+                            </a>
+
+                            <a th:href="@{/salles/delete/{id}(id=${salle.numSalle})}"
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette salle ?')">
+                                <i class="bi bi-trash"></i> Supprimer
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${salles.empty}">
+                    <td colspan="8" class="text-center text-muted p-4">Aucune salle trouvée avec ces critères.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="qrModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Flash Code</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="qrContainer"></div>
+                <p class="mt-2 text-muted fw-bold" id="qrText"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function afficherQR(numSalle, capacite) {
+        var container = document.getElementById("qrContainer");
+        container.innerHTML = ""; // Vider l'ancien
+
+        document.getElementById("qrText").innerText = "Salle " + numSalle;
+
+        // Utilisation de l'API publique QR Server
+        var url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Salle:" + numSalle + "|Cap:" + capacite;
+
+        var img = document.createElement("img");
+        img.src = url;
+        img.className = "img-fluid border p-2";
+        container.appendChild(img);
+    }
+</script>
+
+</body>
+</html>

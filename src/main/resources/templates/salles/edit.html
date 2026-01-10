@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header}"></head>
+<body class="bg-light">
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Modifier la Salle : <span th:text="${salleDTO.numS}"></span></h4>
+            <span class="badge bg-dark">Mode Édition</span>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/salles/update}" th:object="${salleDTO}" method="post">
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Numéro de Salle</label>
+                        <input type="text" th:field="*{numS}" class="form-control bg-light" readonly>
+                        <div class="form-text">L'identifiant d'une salle ne peut pas être modifié.</div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Bâtiment</label>
+                        <select th:field="*{codeBatiment}" class="form-select" required>
+                            <option th:each="b : ${batiments}"
+                                    th:value="${b.codeB}"
+                                    th:text="${b.codeB}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Type de salle</label>
+                        <select th:field="*{typeS}" class="form-select">
+                            <option th:each="t : ${T(com.hai925i.campus.model.TypeSalle).values()}"
+                                    th:value="${t}" th:text="${t}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Capacité d'accueil</label>
+                        <input type="number" th:field="*{capacite}" class="form-control" min="1" required>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Étage</label>
+                        <input type="text" th:field="*{etage}" class="form-control">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Accessibilité (PMR)</label>
+                    <div class="mt-2">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" th:field="*{acces}" id="accesOui" value="oui">
+                            <label class="form-check-label" for="accesOui">Accessible (Oui)</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" th:field="*{acces}" id="accesNon" value="non">
+                            <label class="form-check-label" for="accesNon">Non accessible (Non)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 border-top pt-3">
+                    <button type="submit" class="btn btn-warning px-4">Enregistrer les modifications</button>
+                    <a href="/salles" class="btn btn-outline-secondary">Annuler et revenir à la liste</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

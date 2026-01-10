@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: header}">
+    <title>Liste des utilisateurs</title>
+</head>
+<body class="bg-light">
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-primary" th:text="${pageTitle}">Utilisateurs</h2>
+            <p class="text-muted" th:text="${'Université : ' + nomUniversite}"></p>
+        </div>
+
+        <a href="/dashboard" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Retour Dashboard
+        </a>
+    </div>
+
+    <!-- Filtres -->
+    <div class="mb-3 card p-3 border-0 shadow-sm">
+        <form action="/users" method="get" class="row g-3 align-items-end">
+            <!-- Filtre Rôle (Admin seulement) -->
+            <div class="col-md-3" sec:authorize="hasRole('ADMIN')">
+                <label for="roleFilter" class="form-label fw-bold">Rôle</label>
+                <select name="roleFilter" id="roleFilter" class="form-select">
+                    <option value="" th:selected="${currentRoleFilter == null}">-- Tous --</option>
+                    <option value="admin" th:selected="${currentRoleFilter != null and currentRoleFilter.name() == 'admin'}">Admin</option>
+                    <option value="enseignant" th:selected="${currentRoleFilter != null and currentRoleFilter.name() == 'enseignant'}">Enseignant</option>
+                    <option value="etudiant" th:selected="${currentRoleFilter != null and currentRoleFilter.name() == 'etudiant'}">Étudiant</option>
+                </select>
+            </div>
+
+            <!-- Filtre Campus (Pour tout le monde) -->
+            <div class="col-md-3">
+                <label for="campusFilter" class="form-label fw-bold">Campus</label>
+                <select name="campusFilter" id="campusFilter" class="form-select">
+                    <option value="" th:selected="${currentCampusFilter == null}">-- Tous --</option>
+                    <option th:each="c : ${campuses}"
+                            th:value="${c.nomC}"
+                            th:text="${c.nomC}"
+                            th:selected="${c.nomC == currentCampusFilter}"></option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+            </div>
+            <div class="col-md-2">
+                <a href="/users" class="btn btn-outline-secondary w-100" th:if="${currentRoleFilter != null or currentCampusFilter != null}">Réinitialiser</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover table-striped mb-0">
+                <thead class="table-primary">
+                <tr>
+                    <th>Identifiant</th>
+                    <th>Campus</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th sec:authorize="hasRole('ADMIN')">Dernière connexion</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${users.isEmpty()}">
+                    <td colspan="5" class="text-center py-4">Aucun utilisateur trouvé.</td>
+                </tr>
+                <tr th:each="u : ${users}">
+                    <td class="fw-bold" th:text="${u.username}">Username</td>
+                    <td th:text="${u.campus?.nomC ?: '-'}">Campus</td>
+                    <td>
+                        <span th:if="${u.role.name() == 'admin'}" class="badge bg-danger">ADMIN</span>
+                        <span th:if="${u.role.name() == 'enseignant'}" class="badge bg-success">ENSEIGNANT</span>
+                        <span th:if="${u.role.name() == 'etudiant'}" class="badge bg-info text-dark">ÉTUDIANT</span>
+                    </td>
+                    <td>
+                        <span class="badge rounded-pill bg-light text-dark border">Actif</span>
+                    </td>
+                    <td sec:authorize="hasRole('ADMIN')">
+                        <button type="button" class="btn btn-sm btn-info"
+                                th:if="${u.lastLoginDate != null}"
+                                th:data-date="${#temporals.format(u.lastLoginDate, 'dd/MM/yyyy HH:mm')}"
+                                onclick="alert('Dernière connexion : ' + this.getAttribute('data-date'))">
+                            Voir dernière connexion
+                        </button>
+                        <span th:if="${u.lastLoginDate == null}" class="text-muted small">Jamais connecté</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

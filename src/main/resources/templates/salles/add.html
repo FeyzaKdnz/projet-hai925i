@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header}"></head>
+<body class="bg-light">
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Ajouter une nouvelle Salle</h4>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/salles/save}" th:object="${salleDTO}" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Numéro de Salle</label>
+                        <input type="text" th:field="*{numS}" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Bâtiment</label>
+                        <select th:field="*{codeBatiment}" class="form-select" required>
+                            <option value="">-- Choisir un bâtiment --</option>
+                            <option th:each="b : ${batiments}" th:value="${b.codeB}" th:text="${b.codeB}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Type</label>
+                        <select th:field="*{typeS}" class="form-select">
+                            <option th:each="t : ${T(com.hai925i.campus.model.TypeSalle).values()}"
+                                    th:value="${t}" th:text="${t}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Capacité</label>
+                        <input type="number" th:field="*{capacite}" class="form-control">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Étage</label>
+                        <input type="text" th:field="*{etage}" class="form-control">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Accès PMR</label>
+                    <select th:field="*{acces}" class="form-select">
+                        <option value="oui">Oui</option>
+                        <option value="non">Non</option>
+                    </select>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success">Enregistrer la salle</button>
+                    <a href="/salles" class="btn btn-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
