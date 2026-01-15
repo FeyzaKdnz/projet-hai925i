@@ -2,8 +2,7 @@ package com.hai925i.campus.controller;
 
 import com.hai925i.campus.domain.SalleRepository;
 import com.hai925i.campus.dto.dto.SalleDTO;
-import com.hai925i.campus.model.Salle;
-import com.hai925i.campus.security.CustomUserDetails; // Votre classe UserDetails
+import com.hai925i.campus.security.CustomUserDetails;
 import com.hai925i.campus.service.BatimentService;
 import com.hai925i.campus.service.CampusService;
 import com.hai925i.campus.service.SalleService;
@@ -13,7 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
 
 @Controller
 @RequestMapping("/salles")
@@ -31,7 +29,6 @@ public class SalleWebController {
         this.campusService = campusService;
     }
 
-    // Méthode utilitaire pour récupérer l'université de l'utilisateur connecté
     private String getNomUniversiteConnectee(Principal principal) {
         Authentication auth = (Authentication) principal;
         CustomUserDetails user = (CustomUserDetails) auth.getPrincipal();
@@ -50,7 +47,6 @@ public class SalleWebController {
 
         String nomUni = getNomUniversiteConnectee(principal);
 
-        // Filtrage par défaut : uniquement les salles de l'université du user
         if (keyword == null && etage == null && acces == null && batiment == null && campus == null && capMin == null) {
             model.addAttribute("salles", salleRepository.findByBatimentCampusUniversiteNom(nomUni));
         } else {
@@ -64,11 +60,8 @@ public class SalleWebController {
             model.addAttribute("salles", salleRepository.searchSalles(keyword, etage, acces, batiment, nomUni, capMin));
         }
 
-        // On ne propose que les bâtiments appartenant à l'université de l'utilisateur
         model.addAttribute("batiments", batimentService.findByUniversite(nomUni));
-        // On propose les campus de l'université
         model.addAttribute("campuses", campusService.getCampusesByUniversite(nomUni));
-
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedEtage", etage);
         model.addAttribute("selectedAcces", acces);
@@ -84,7 +77,6 @@ public class SalleWebController {
         String nomUni = getNomUniversiteConnectee(principal);
 
         model.addAttribute("salleDTO", new SalleDTO());
-        // Filtrage des bâtiments pour l'ajout
         model.addAttribute("batiments", batimentService.findByUniversite(nomUni));
         return "salles/add";
     }
@@ -103,7 +95,6 @@ public class SalleWebController {
         if (salleDTO == null) return "redirect:/salles";
 
         model.addAttribute("salleDTO", salleDTO);
-        // Filtrage des bâtiments pour l'édition
         model.addAttribute("batiments", batimentService.findByUniversite(nomUni));
         return "salles/edit";
     }

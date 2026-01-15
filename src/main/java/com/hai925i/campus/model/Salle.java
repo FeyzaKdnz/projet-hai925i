@@ -23,7 +23,7 @@ public class Salle {
     private String etage;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "batiment") // FK vers Batiment
+    @JoinColumn(name = "batiment")
     private Batiment batiment;
 
     public Salle() {
@@ -38,7 +38,6 @@ public class Salle {
         this.batiment = batiment;
     }
 
-    // Getters et Setters
     public String getNumSalle() {
         return numSalle;
     }

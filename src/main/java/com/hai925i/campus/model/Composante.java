@@ -35,7 +35,6 @@ public class Composante {
         this.responsable = responsable;
     }
 
-    // Getters et Setters
     public String getAcronyme() {
         return acronyme;
     }

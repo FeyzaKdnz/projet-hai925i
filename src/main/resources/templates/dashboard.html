@@ -141,7 +141,6 @@
     });
 
     function updateView(data, nomCampus) {
-        // A. Mise à jour de la liste
         statsListJs.innerHTML = '';
         const labels = [];
         const values = [];
@@ -160,29 +159,28 @@
             values.push(count);
         }
 
-        // B. Mise à jour du Camembert (Pie Chart)
         if (myChart) {
             myChart.destroy();
         }
 
         myChart = new Chart(ctx, {
-            type: 'pie', // CHANGEMENT ICI : 'pie' ou 'doughnut'
+            type: 'pie',
             data: {
                 labels: labels,
                 datasets: [{
                     label: 'Nombre de salles',
                     data: values,
                     backgroundColor: [
-                        '#FF6384', // Rouge
-                        '#36A2EB', // Bleu
-                        '#FFCE56', // Jaune
-                        '#4BC0C0', // Vert d'eau
-                        '#9966FF', // Violet
-                        '#FF9F40', // Orange
-                        '#C9CBCF', // Gris
-                        '#2ecc71', // Vert émeraude
-                        '#e74c3c', // Rouge vif
-                        '#34495e'  // Bleu nuit
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0',
+                        '#9966FF',
+                        '#FF9F40',
+                        '#C9CBCF',
+                        '#2ecc71',
+                        '#e74c3c',
+                        '#34495e'
                     ],
                     hoverOffset: 4
                 }]
@@ -192,15 +190,14 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: true, // On affiche la légende pour le camembert
-                        position: 'right' // Positionnée à droite
+                        display: true,
+                        position: 'right'
                     },
                     title: {
                         display: true,
                         text: 'Répartition des types de salles à ' + nomCampus
                     }
                 }
-                // Note : On a supprimé 'scales' car un camembert n'a pas d'axes X/Y
             }
         });
     }

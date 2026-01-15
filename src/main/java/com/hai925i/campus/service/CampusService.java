@@ -17,13 +17,12 @@ public class CampusService {
     private final CampusRepository campusRepository;
     private final CampusMapper campusMapper;
 
-    @Autowired // Injection automatique des dépendances
+    @Autowired
     public CampusService(CampusRepository campusRepository, CampusMapper campusMapper) {
         this.campusRepository = campusRepository;
         this.campusMapper = campusMapper;
     }
 
-    // 1. Récupérer tous les campus (sous forme de DTO)
     public List<CampusDTO> getAllCampus() {
         List<Campus> campusList = campusRepository.findAll();
         return campusList.stream()
@@ -31,13 +30,11 @@ public class CampusService {
                 .collect(Collectors.toList());
     }
 
-    // 2. Récupérer un campus par son nom
     public CampusDTO getCampus(String nomC) {
         Campus campus = campusRepository.findByNomC(nomC);
         return campusMapper.toDto(campus);
     }
 
-    // 3. Créer un nouveau campus
     public void createCampus(CampusDTO dto) {
         Campus campus = campusMapper.toEntity(dto);
         campusRepository.save(campus);
@@ -52,7 +49,7 @@ public class CampusService {
     }
 
     public List<CampusMapDTO> getCampusDTOsByUniversite(String nomUniversite) {
-        return campusRepository.findByUniversiteNom(nomUniversite) // Votre méthode existante qui retourne List<Campus>
+        return campusRepository.findByUniversiteNom(nomUniversite)
                 .stream()
                 .map(campus -> new CampusMapDTO(
                         campus.getNomC(),

@@ -12,13 +12,13 @@ public interface SalleMapper {
 
     // Entité (Salle) -> DTO (SalleDTO)
     @Mapping(source = "numSalle", target = "numS")
-    @Mapping(source = "accessibilite", target = "acces") // Mapping explicite
+    @Mapping(source = "accessibilite", target = "acces")
     @Mapping(source = "batiment.codeB", target = "codeBatiment")
     SalleDTO toDto(Salle salle);
 
     // DTO (SalleDTO) -> Entité (Salle)
     @Mapping(source = "numS", target = "numSalle")
-    @Mapping(source = "acces", target = "accessibilite") // Mapping explicite
+    @Mapping(source = "acces", target = "accessibilite")
     @Mapping(source = "codeBatiment", target = "batiment", qualifiedByName = "stringToBatiment")
     Salle toEntity(SalleDTO salleDTO);
 

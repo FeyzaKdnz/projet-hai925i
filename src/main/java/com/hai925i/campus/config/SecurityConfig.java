@@ -4,8 +4,6 @@ import com.hai925i.campus.domain.UserRepository;
 import com.hai925i.campus.model.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationEventPublisher;
-import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,15 +24,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationSuccessHandler successHandler) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                        // les pages accessibles à tous (CSS, JS, Login, ET la page d'accueil "/")
-                        // il faut autoriser explicitement /login ici aussi pour éviter une boucle de redirection
                         .requestMatchers("/", "/login", "/css/**", "/js/**", "/webjars/**").permitAll()
-
-                        /* ---------- configuration des droits en fonction des roles - */
                         .requestMatchers("/salles/delete/**").hasRole("ADMIN")
                         .requestMatchers("/salles/add", "/salles/save", "/salles/edit/**", "/salles/update").hasAnyRole("ADMIN", "ENSEIGNANT")
-
-                        // Tout le reste nécessite d'être connecté (ex: /dashboard, /salles)
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form

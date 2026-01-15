@@ -12,11 +12,11 @@ public class Batiment {
     @Column(length = 16)
     private String codeB;
 
-    @Column(name = "anneeC") // Nom de colonne SQL imposé
+    @Column(name = "anneeC")
     private int anneeConstruction;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "campus") // FK dans la table batiment
+    @JoinColumn(name = "campus")
     private Campus campus;
 
     @OneToMany(mappedBy = "batiment", cascade = CascadeType.ALL)
@@ -34,7 +34,6 @@ public class Batiment {
         this.campus = campus;
     }
 
-    // Getters et Setters
     public String getCodeB() {
         return codeB;
     }

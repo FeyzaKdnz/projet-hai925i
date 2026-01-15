@@ -146,8 +146,6 @@
         container.innerHTML = ""; // Vider l'ancien
 
         document.getElementById("qrText").innerText = "Salle " + numSalle;
-
-        // Utilisation de l'API publique QR Server
         var url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Salle:" + numSalle + "|Cap:" + capacite;
 
         var img = document.createElement("img");

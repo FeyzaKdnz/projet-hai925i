@@ -65,10 +65,7 @@ public class SalleService {
     }
 
     public void saveSalle(SalleDTO salleDTO) {
-        // On convertit le DTO en Entité grâce au Mapper
         Salle salle = salleMapper.toEntity(salleDTO);
-
-        // On enregistre en base de données
         salleRepository.save(salle);
     }
 
@@ -88,7 +85,6 @@ public class SalleService {
         Map<String, Long> stats = new HashMap<>();
 
         for (Object[] result : results) {
-            // Sécurité : on vérifie si le type est null avant de faire toString()
             String type = (result[0] != null) ? result[0].toString() : "Inconnu";
             Long count = (Long) result[1];
 

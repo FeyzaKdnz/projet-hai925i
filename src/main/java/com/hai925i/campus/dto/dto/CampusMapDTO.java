@@ -13,7 +13,6 @@ public class CampusMapDTO {
         this.ville = ville;
     }
 
-    // Getters obligatoires pour la conversion JSON
     public String getNom() { return nom; }
     public Double getLatitude() { return latitude; }
     public Double getLongitude() { return longitude; }

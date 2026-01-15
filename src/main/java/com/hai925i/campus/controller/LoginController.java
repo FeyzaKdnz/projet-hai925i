@@ -21,10 +21,11 @@ public class LoginController {
     @GetMapping("/")
     public String index(Model model) {
         model.addAttribute("universites", universiteService.getAllUniversites());
-        return "index"; // Affiche index.html (les cartes avec les universités)
+        return "index";
     }
 
     /* ------ PAGE DE LOGIN (mémorise le choix de l'université) ------ */
+
     @GetMapping("/login")
     public String loginPage(@RequestParam(required = false) String uni,
                             HttpSession session,
@@ -36,7 +37,6 @@ public class LoginController {
 
         String targetUniAcronyme = (String) session.getAttribute("TARGET_UNI_CODE");
 
-        // Retour à l'accueil si on force login (sécurité)
         if (targetUniAcronyme == null) {
             return "redirect:/";
         }

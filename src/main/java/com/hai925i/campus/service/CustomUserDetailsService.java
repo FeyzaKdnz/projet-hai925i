@@ -28,15 +28,12 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur inconnu : " + username));
 
-        // --- VERIFICATION DE L'UNIVERSITE ---
-        // On récupère la session HTTP actuelle pour voir quelle université a été choisi, si elle n'existe pas on ne la crée pas (false)
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session = attr.getRequest().getSession(false);
 
         if (session != null) {
             String targetUniAcronyme = (String) session.getAttribute("TARGET_UNI_CODE");
 
-            // Si l'utilisateur a une université assignée, on vérifie qu'elle correspond au choix
             if (user.getUniversite() != null && targetUniAcronyme != null) {
                 String userUniAcronyme = user.getUniversite().getAcronyme();
 

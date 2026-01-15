@@ -1,7 +1,7 @@
 package com.hai925i.campus.controller;
 
 import com.hai925i.campus.dto.dto.SalleDTO;
-import com.hai925i.campus.model.TypeSalle; // Assurez-vous que c'est bien l'Enum ou String
+import com.hai925i.campus.model.TypeSalle;
 import com.hai925i.campus.service.SalleService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;

@@ -24,7 +24,6 @@ public class CampusDTO {
         this.nomUniversite = nomUniversite;
     }
 
-    // Getters et Setters
     public String getNomC() {
         return nomC;
     }
