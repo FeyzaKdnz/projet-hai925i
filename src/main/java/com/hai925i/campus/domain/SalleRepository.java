@@ -33,11 +33,13 @@ public interface SalleRepository extends JpaRepository<Salle, String> {
             "(:etage IS NULL OR s.etage = :etage) AND " +
             "(:acces IS NULL OR s.accessibilite = :acces) AND " +
             "(:batiment IS NULL OR s.batiment.codeB = :batiment) AND " +
+            "(:campus IS NULL OR s.batiment.campus.nomC = :campus) AND " +
             "(:capMin IS NULL OR s.capacite >= :capMin)")
     List<Salle> searchSalles(@Param("keyword") String keyword,
                              @Param("etage") String etage,
                              @Param("acces") String acces,
                              @Param("batiment") String batimentCode,
+                             @Param("campus") String campus,
                              @Param("nomUni") String nomUni,
                              @Param("capMin") Integer capMin);
 }

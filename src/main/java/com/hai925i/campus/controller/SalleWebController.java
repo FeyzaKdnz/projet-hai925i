@@ -1,6 +1,5 @@
 package com.hai925i.campus.controller;
 
-import com.hai925i.campus.domain.SalleRepository;
 import com.hai925i.campus.dto.dto.SalleDTO;
 import com.hai925i.campus.security.CustomUserDetails;
 import com.hai925i.campus.service.BatimentService;
@@ -18,13 +17,11 @@ import java.security.Principal;
 public class SalleWebController {
 
     private final SalleService salleService;
-    private final SalleRepository salleRepository;
     private final BatimentService batimentService;
     private final CampusService campusService;
 
-    public SalleWebController(SalleService salleService, SalleRepository salleRepository, BatimentService batimentService, CampusService campusService) {
+    public SalleWebController(SalleService salleService, BatimentService batimentService, CampusService campusService) {
         this.salleService = salleService;
-        this.salleRepository = salleRepository;
         this.batimentService = batimentService;
         this.campusService = campusService;
     }
@@ -48,7 +45,7 @@ public class SalleWebController {
         String nomUni = getNomUniversiteConnectee(principal);
 
         if (keyword == null && etage == null && acces == null && batiment == null && campus == null && capMin == null) {
-            model.addAttribute("salles", salleRepository.findByBatimentCampusUniversiteNom(nomUni));
+            model.addAttribute("salles", salleService.getSallesEntityByUniversite(nomUni));
         } else {
             if (keyword != null && keyword.isEmpty()) keyword = null;
             if (etage != null && etage.isEmpty()) etage = null;
@@ -57,7 +54,7 @@ public class SalleWebController {
             if (campus != null && campus.isEmpty()) campus = null;
             if (capMin != null && capMin == 0) capMin = null;
 
-            model.addAttribute("salles", salleRepository.searchSalles(keyword, etage, acces, batiment, nomUni, capMin));
+            model.addAttribute("salles", salleService.searchSalles(keyword, etage, acces, batiment, campus, nomUni, capMin));
         }
 
         model.addAttribute("batiments", batimentService.findByUniversite(nomUni));

@@ -64,6 +64,14 @@ public class SalleService {
                 .collect(Collectors.toList());
     }
 
+    public List<Salle> getSallesEntityByUniversite(String nomUniversite) {
+        return salleRepository.findByBatimentCampusUniversiteNom(nomUniversite);
+    }
+
+    public List<Salle> searchSalles(String keyword, String etage, String acces, String batiment, String campus, String nomUni, Integer capMin) {
+        return salleRepository.searchSalles(keyword, etage, acces, batiment, campus, nomUni, capMin);
+    }
+
     public void saveSalle(SalleDTO salleDTO) {
         Salle salle = salleMapper.toEntity(salleDTO);
         salleRepository.save(salle);

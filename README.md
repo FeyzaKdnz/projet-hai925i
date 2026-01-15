@@ -71,7 +71,7 @@ Le projet suit une architecture MVC stricte en couches :
     * **`controller/`** : Gestion des requêtes HTTP (`LoginController`, `SalleWebController`, `UserWebController`).
     * **`domain/`** : Interfaces d'accès aux données (`UserRepository`, `SalleRepository`).
     * **`model/`** : Entités JPA (`Universite`, `Campus`, `Salle`, `User`).
-    * **`security/`** : Logique d'authentification (`CustomUserDetails`, `UniversityAuthenticationSuccessHandler`).
+    * **`security/`** : Logique d'authentification (`CustomUserDetails`).
     * **`service/`** : Logique métier.
 ***
 **Auteur** : Feyza Karadeniz
